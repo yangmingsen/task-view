@@ -83,7 +83,11 @@ async function handleSave() {
 }
 
 function goBack() {
-  router.push(isEdit.value ? `/task/${route.params.id}` : '/')
+  if (isEdit.value) {
+    router.back()
+  } else {
+    router.push('/')
+  }
 }
 </script>
 
@@ -91,7 +95,7 @@ function goBack() {
   <div class="form-page">
     <!-- 顶栏 -->
     <header class="form-header">
-      <button class="btn-back" @click="goBack">← {{ isEdit ? '返回详情' : '返回列表' }}</button>
+      <button class="btn-back" @click="goBack">← 返回</button>
       <h2>{{ pageTitle }}</h2>
       <div class="header-actions">
         <button class="btn btn-primary" @click="handleSave" :disabled="saving">
