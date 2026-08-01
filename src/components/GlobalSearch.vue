@@ -205,6 +205,7 @@ defineExpose({ open, close })
   background: rgba(0, 0, 0, 0.45);
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   padding-top: 12vh;
   outline: none;
 }
@@ -217,9 +218,6 @@ defineExpose({ open, close })
   border-radius: 16px;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  max-height: 70vh;
   animation: slideDown 0.15s ease-out;
 }
 
@@ -239,7 +237,6 @@ defineExpose({ open, close })
   display: flex;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
   gap: 10px;
 }
 
@@ -274,8 +271,10 @@ defineExpose({ open, close })
 /* 结果区 */
 .search-results {
   overflow-y: auto;
-  max-height: 56vh;
+  overflow-x: hidden;
+  max-height: 50vh;
   padding: 8px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .searching-hint {
