@@ -710,4 +710,58 @@ export function getPriorityLabel(priority) {
   return priorityMap[priority] || priority
 }
 
+// 全局搜索（输入时实时调用）
+export async function searchTodos(query = '') {
+  await delay(200)
+  if (!query.trim()) return []
+
+  const q = query.trim().toLowerCase()
+  const results = []
+
+  todos.forEach((t) => {
+    const matches = []
+    // 匹配标题
+    if (t.title.toLowerCase().includes(q)) {
+      matches.push({ field: 'title', text: t.title, keyword: q })
+    }
+    // 匹配描述
+    if (t.desc.toLowerCase().includes(q)) {
+      // 提取描述中匹配关键字前后的纯文本片段
+      const plainDesc = t.desc
+      const idx = plainDesc.toLowerCase().indexOf(q)
+      const start = Math.max(0, idx - 30)
+      const end = Math.min(plainDesc.length, idx + q.length + 50)
+      let snippet = plainDesc.slice(start, end).replace(/\n/g, ' ')
+      if (start > 0) snippet = '...' + snippet
+      if (end < plainDesc.length) snippet += '...'
+      matches.push({ field: 'desc', text: snippet, keyword: q })
+    }
+    // 匹配负责人
+    if (t.assignedTo.toLowerCase().includes(q)) {
+      matches.push({ field: 'assignedTo', text: t.assignedTo, keyword: q })
+    }
+    // 匹配项目
+    if (t.project.toLowerCase().includes(q)) {
+      matches.push({ field: 'project', text: t.project, keyword: q })
+    }
+
+    if (matches.length > 0) {
+      results.push({
+        id: t.id,
+        title: t.title,
+        type: t.type,
+        status: t.status,
+        priority: t.priority,
+        assignedTo: t.assignedTo,
+        deadline: t.deadline,
+        progress: t.progress,
+        matches,
+        _keyword: q,
+      })
+    }
+  })
+
+  return results
+}
+
 export { typeMap, statusMap, priorityMap }

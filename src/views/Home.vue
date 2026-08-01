@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   fetchTodos,
@@ -8,8 +8,28 @@ import {
   getStatusLabel,
   getPriorityLabel,
 } from '@/mock/data.js'
+import GlobalSearch from '@/components/GlobalSearch.vue'
 
 const router = useRouter()
+
+/* ========== 全局搜索 ========== */
+const searchRef = ref(null)
+
+function onGlobalKeydown(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault()
+    searchRef.value?.open()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onGlobalKeydown)
+  loadList()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onGlobalKeydown)
+})
 
 /* ========== 搜索 & 筛选 ========== */
 const keyword = ref('')
@@ -125,9 +145,7 @@ function handleLogout() {
   router.push('/login')
 }
 
-onMounted(() => {
-  loadList()
-})
+
 </script>
 
 <template>
@@ -248,6 +266,9 @@ onMounted(() => {
     </div>
 
     <div class="loading-state" v-else>加载中...</div>
+
+    <!-- 全局搜索 -->
+    <GlobalSearch ref="searchRef" />
   </div>
 </template>
 
