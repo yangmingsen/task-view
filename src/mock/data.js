@@ -376,6 +376,217 @@ POST /api/upload/chunk
     createdDate: '2026-08-01',
     progress: 0,
   },
+  {
+    id: 11,
+    title: '移动端底部导航栏适配',
+    type: 'bug',
+    priority: 2,
+    status: 'wait',
+    assignedTo: '钱七',
+    deadline: '2026-08-14',
+    desc: `## 问题描述
+iOS Safari 底部导航栏在横屏模式下出现遮挡，与系统 home indicator 区域重叠。
+
+## 复现步骤
+1. iPhone 14 横屏模式打开应用
+2. 底部导航栏被系统手势横条遮挡
+3. 底部按钮无法正常点击
+
+## 解决方案
+- 使用 \`env(safe-area-inset-bottom)\` 适配安全区域
+- 在 viewport meta 标签中添加 \`viewport-fit=cover\`
+
+\`\`\`css
+.navbar {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+\`\`\`
+
+## 测试设备
+- [ ] iPhone SE (2022)
+- [ ] iPhone 14 / 14 Pro
+- [ ] Android 小米 14`,
+    project: '前端项目',
+    module: '移动端',
+    createdBy: '周九',
+    createdDate: '2026-08-01',
+    progress: 0,
+  },
+  {
+    id: 12,
+    title: '商品详情页图片懒加载优化',
+    type: 'task',
+    priority: 3,
+    status: 'doing',
+    assignedTo: '孙八',
+    deadline: '2026-08-16',
+    desc: `## 优化目标
+商品详情页加载时间从 3.2s 降到 **1s 以内**。
+
+## 当前问题
+- 详情页一次加载 20+ 张高清图
+- 首屏可见区域仅 3-4 张
+- 瀑布流导致大量未渲染图片也在请求
+
+## 方案
+1. 使用 Intersection Observer API 实现懒加载
+2. 缩略图 + 原图两级加载策略
+3. WebP 格式 + 图片 CDN 压缩
+
+\`\`\`javascript
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const img = entry.target;
+      img.src = img.dataset.src;
+      observer.unobserve(img);
+    }
+  });
+});
+document.querySelectorAll('img[data-src]').forEach(img => observer.observe(img));
+\`\`\`
+
+## 预期效果
+| 指标 | 优化前 | 优化后 |
+|------|--------|--------|
+| 首屏时间 | 3.2s | <1s |
+| 图片请求数 | 20+ | 3-4 |
+| 带宽消耗 | 15MB | 2MB |`,
+    project: '前端项目',
+    module: '商品模块',
+    createdBy: '李四',
+    createdDate: '2026-08-01',
+    progress: 30,
+  },
+  {
+    id: 13,
+    title: '任务看板拖拽排序功能',
+    type: 'story',
+    priority: 3,
+    status: 'wait',
+    assignedTo: '吴十',
+    deadline: '2026-08-28',
+    desc: `## 需求描述
+实现类似 Trello 的看板视图，支持任务卡片在列表间拖拽移动。
+
+## 功能点
+1. **看板视图** - 按状态分列展示任务
+2. **拖拽移动** - 卡片拖到不同列自动更新状态
+3. **排序** - 同列内卡片可上下拖拽调序
+4. **动画** - 拖拽过程有流畅的过渡动画
+
+## 技术选型
+- vuedraggable (基于 SortableJS)
+- 拖拽完成后调接口持久化排序
+
+## 交互细节
+> 💡 拖拽时原列卡片需要自动让位，目标列需要有高亮指示区域
+
+## 验收标准
+- [ ] 卡片可在列间自由拖拽
+- [ ] 拖拽后数据同步正确
+- [ ] 移动端支持触摸拖拽
+- [ ] 拖拽排序接口延迟 < 200ms`,
+    project: '前端项目',
+    module: '看板模块',
+    createdBy: '李四',
+    createdDate: '2026-08-02',
+    progress: 0,
+  },
+  {
+    id: 14,
+    title: 'Redis 缓存穿透防护方案',
+    type: 'task',
+    priority: 1,
+    status: 'doing',
+    assignedTo: '赵六',
+    deadline: '2026-08-06',
+    desc: `## 问题背景
+高频访问的商品详情接口存在缓存穿透风险，大量请求直接命中数据库。
+
+## 防护方案
+
+### 1. 空值缓存
+对不存在的数据也缓存（TTL 较短），防止恶意攻击。
+
+\`\`\`java
+if (data == null) {
+    redisTemplate.opsForValue().set(key, "NULL", 60, TimeUnit.SECONDS);
+}
+\`\`\`
+
+### 2. 布隆过滤器
+使用 Bloom Filter 快速判断 key 是否可能存在。
+
+### 3. 接口限流
+对单 IP/单用户限制访问频率。
+
+## 监控指标
+| 指标 | 当前 | 目标 |
+|------|------|------|
+| 缓存命中率 | 85% | 98% |
+| DB 查询量 | 5000/min | <500/min |
+| 平均响应 | 120ms | <30ms |
+
+## 注意事项
+> ⚠️ 布隆过滤器需要定期重建，避免数据不一致`,
+    project: '后端项目',
+    module: '基础设施',
+    createdBy: '李四',
+    createdDate: '2026-08-01',
+    progress: 55,
+  },
+  {
+    id: 15,
+    title: '全局搜索功能实现',
+    type: 'story',
+    priority: 2,
+    status: 'doing',
+    assignedTo: '张三',
+    deadline: '2026-08-22',
+    desc: `## 需求说明
+在顶部导航栏增加全局搜索入口，支持跨模块搜索。
+
+## 搜索范围
+- 📋 待办任务（标题 + 描述）
+- 📄 文档
+- 👤 成员
+- 📁 项目
+
+## 搜索交互
+1. **快捷键** \`Cmd/Ctrl + K\` 唤起搜索面板
+2. **实时搜索** 输入时 200ms 防抖
+3. **搜索结果** 分组展示，每类显示前 5 条
+4. **键盘导航** ↑↓ 选择，Enter 跳转
+
+## 前端实现
+\`\`\`javascript
+// 搜索结果数据结构
+interface SearchResult {
+  type: 'task' | 'doc' | 'member' | 'project'
+  title: string
+  desc: string
+  url: string
+  highlight: { field: string, indices: number[][] }[]
+}
+\`\`\`
+
+## 后端接口
+\`\`\`
+GET /api/search?q=关键词&limit=20
+\`\`\`
+
+## 进度
+- [x] 搜索面板 UI
+- [x] 快捷键注册
+- [ ] 后端索引构建（进行中）
+- [ ] 搜索高亮`,
+    project: '前端项目',
+    module: '搜索模块',
+    createdBy: '李四',
+    createdDate: '2026-07-25',
+    progress: 65,
+  },
 ]
 
 // 类型映射
@@ -411,7 +622,7 @@ let nextId = todos.length + 1
 // ---------- Mock API ----------
 
 // 获取待办列表（支持搜索、类型筛选、状态筛选）
-export async function fetchTodos({ keyword = '', type = '', status = '', page = 1, pageSize = 20 } = {}) {
+export async function fetchTodos({ keyword = '', type = '', status = '', page = 1, pageSize = 10 } = {}) {
   await delay()
   let list = [...todos]
 

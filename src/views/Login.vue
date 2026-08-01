@@ -28,6 +28,7 @@ async function handleLogin() {
 
   // 简单模拟：用户名和密码非空即可登录
   if (username.value.trim() && password.value.trim()) {
+    localStorage.setItem('isLoggedIn', 'true')
     localStorage.setItem('token', 'mock-token-' + Date.now())
     localStorage.setItem('user', JSON.stringify({ name: username.value.trim() }))
     const redirect = route.query.redirect || '/'

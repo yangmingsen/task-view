@@ -5,7 +5,7 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: () => import('@/views/Login.vue'),
-    meta: { guest: true },
+    meta: { requiresAuth: false },
   },
   {
     path: '/',
@@ -14,10 +14,28 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/task/new',
+    name: 'TaskCreate',
+    component: () => import('@/views/TaskForm.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/task/:id',
+    name: 'TaskDetail',
+    component: () => import('@/views/TaskDetail.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/task/:id/edit',
+    name: 'TaskEdit',
+    component: () => import('@/views/TaskForm.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/share/:id',
     name: 'ShareDetail',
     component: () => import('@/views/ShareDetail.vue'),
-    // 公开页面，无需登录
+    meta: { requiresAuth: false },
   },
   {
     path: '/:pathMatch(.*)*',
@@ -30,15 +48,12 @@ const router = createRouter({
   routes,
 })
 
-// 路由守卫：未登录跳转到登录页
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token')
-  const isLoggedIn = !!token
-
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
   if (to.meta.requiresAuth && !isLoggedIn) {
-    next({ name: 'Login', query: { redirect: to.fullPath } })
-  } else if (to.meta.guest && isLoggedIn) {
-    next({ name: 'Home' })
+    next('/login')
+  } else if (to.path === '/login' && isLoggedIn) {
+    next('/')
   } else {
     next()
   }
