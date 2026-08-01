@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 .DS_Store
 dist
+task-view-server/target/
+task-view-server/.idea/
 dist-ssr
 coverage
 *.local
