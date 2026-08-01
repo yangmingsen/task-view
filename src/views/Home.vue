@@ -458,9 +458,11 @@ onMounted(() => {
                 <span class="detail-value">{{ currentTodo.createdDate }}</span>
               </div>
             </div>
-            <div class="detail-item">
+            <div class="detail-item detail-item-full">
               <label>描述</label>
-              <div class="detail-desc">{{ currentTodo.desc || '暂无描述' }}</div>
+              <div class="detail-desc">
+                <v-md-preview :text="currentTodo.desc || '暂无描述'" />
+              </div>
             </div>
           </div>
         </div>
@@ -537,9 +539,9 @@ onMounted(() => {
                 <input v-model="editForm.module" type="text" class="form-input" placeholder="请输入模块名称" />
               </div>
             </div>
-            <div class="form-item">
-              <label>描述</label>
-              <textarea v-model="editForm.desc" class="form-textarea" rows="4" placeholder="请输入描述"></textarea>
+            <div class="form-item form-item-full">
+              <label>描述（支持 Markdown）</label>
+              <v-md-editor v-model="editForm.desc" height="400px" placeholder="请输入描述，支持 Markdown 语法"></v-md-editor>
             </div>
           </div>
         </div>
@@ -864,7 +866,11 @@ onMounted(() => {
 }
 
 .modal-edit {
-  max-width: 680px;
+  max-width: 900px;
+}
+
+.form-item-full {
+  grid-column: 1 / -1;
 }
 
 .modal-confirm {

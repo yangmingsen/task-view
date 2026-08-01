@@ -110,7 +110,9 @@ onMounted(async () => {
         <!-- 描述 -->
         <div class="share-desc">
           <h3>详细描述</h3>
-          <div class="share-desc-content">{{ todo.desc || '暂无描述' }}</div>
+          <div class="share-desc-content">
+            <v-md-preview :text="todo.desc || '暂无描述'" />
+          </div>
         </div>
 
         <!-- 底部 -->
