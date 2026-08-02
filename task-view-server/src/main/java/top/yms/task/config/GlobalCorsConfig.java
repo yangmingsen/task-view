@@ -19,6 +19,9 @@ public class GlobalCorsConfig {
     @Value("${cors.allowed-hosts}")
     private String allowedHosts;
 
+    @Value("${cors.allowed-host-name}")
+    private String allowedHostName;
+
     @Value("${cors.allowed-ports}")
     private String allowedPorts;
 
@@ -34,6 +37,11 @@ public class GlobalCorsConfig {
         String localIP = HostIPUtil.getLocalIP();
         hosts = hosts+","+localIP;
         return hosts;
+    }
+
+    private String[] getAllowedHostNames() {
+        String[] split = allowedHostName.split(",");
+        return split;
     }
 
 
@@ -81,6 +89,10 @@ public class GlobalCorsConfig {
         //config.addAllowedOrigin("http://localhost:3000");
         for( String origin : getAllowedOrigins(getAllowedHosts(), allowedPorts)) {
             config.addAllowedOrigin(origin);
+        }
+
+        for (String hostName : getAllowedHostNames()) {
+            config.addAllowedOrigin(hostName);
         }
 
 

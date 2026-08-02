@@ -11,7 +11,9 @@ import top.yms.task.common.R;
 import top.yms.task.entity.TaskEntity;
 import top.yms.task.mapper.TaskMapper;
 import top.yms.task.service.TaskService;
+import top.yms.task.util.IdWorker;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -26,6 +28,9 @@ public class TaskController {
 
     @Autowired
     private TaskMapper taskMapper;
+
+    @Resource
+    private IdWorker idWorker;
 
     // ======================== 分页列表 ========================
 
@@ -92,8 +97,10 @@ public class TaskController {
         if (!StringUtils.hasText(task.getTitle())) {
             return R.fail(400, "标题不能为空");
         }
-
-        task.setId(UUID.randomUUID().toString().replace("-", ""));
+        String id = task.getId();
+        if (org.apache.commons.lang3.StringUtils.isBlank(id)) {
+            task.setId(idWorker.nextId()+"");
+        }
         task.setCreateTime(new Date());
         task.setUpdateTime(new Date());
         if (task.getStatus() == null) {

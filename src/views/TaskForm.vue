@@ -13,6 +13,7 @@ const route = useRoute()
 const router = useRouter()
 
 const isEdit = computed(() => !!route.params.id)
+const isNew = ref(!route.params.id)  // 新建模式标记，首次创建后变为 false
 const pageTitle = computed(() => isEdit.value ? '编辑待办' : '新建待办')
 const saving = ref(false)
 const saved = ref(false)
@@ -165,13 +166,15 @@ async function doSave(redirect) {
   try {
     let savedId = form.value.id
 
-    if (isEdit.value) {
-      await updateTodo(savedId, { ...form.value })
-    } else {
+    if (isNew.value) {
+      // 首次创建：调用 createTodo，成功后切换到更新模式
       const result = await createTodo({ ...form.value })
       savedId = result.id
       form.value.id = savedId
       tempId.value = savedId
+      isNew.value = false
+    } else {
+      await updateTodo(savedId, { ...form.value })
     }
 
     // 上传待上传的本地文件

@@ -6,10 +6,13 @@ storage:
     token: f757a6f2d2904a6b9045ffb68e814e75
 
 cors:
+  allowed-host-name: api.taskview.yms.top
   allowed-hosts: 127.0.0.1,localhost
   allowed-ports: 9009
   allowed-method: OPTIONS,HEAD,GET,POST,PUT,DELETE,PATCH
 
+server:
+  port: 9008
 
 spring:
   datasource:
