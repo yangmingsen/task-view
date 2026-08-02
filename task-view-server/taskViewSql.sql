@@ -107,9 +107,9 @@ CREATE TABLE t_task_file (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='任务附件表';
 
 -- ============================================================
--- 初始化数据：默认管理员账号 admin / admin123
--- 密码为 admin123 的 BCrypt 加密值（实际项目中使用 BCryptPasswordEncoder）
+-- 初始化数据：默认管理员账号 admin / 123
+-- 密码为 admin123
 -- 此处用占位，上线前替换为真实加密值
 -- ============================================================
 INSERT INTO t_user (id, username, password, real_name, email, status) VALUES
-('1', 'admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5Eh', '管理员', 'admin@taskview.com', 1);
+('1', 'admin', '202cb962ac59075b964b07152d234b70', '管理员', 'admin@taskview.com', 1);
