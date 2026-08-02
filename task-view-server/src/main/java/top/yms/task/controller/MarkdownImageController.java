@@ -28,8 +28,8 @@ public class MarkdownImageController {
 
     private static final Logger log = LoggerFactory.getLogger(MarkdownImageController.class);
 
-    @Value("${markdown-image.upload-dir:./uploads/markdown-images}")
-    private String uploadDir;
+//    @Value("${markdown-image.upload-dir:./uploads/markdown-images}")
+//    private String uploadDir;
 
     /**
      * 文件存储服务
@@ -118,10 +118,11 @@ public class MarkdownImageController {
         }
     }
 
+
     /**
      * 访问 Markdown 图片（在详情页预览时通过 <img> 加载）
      */
-    @GetMapping("/markdown/images/{filename}")
+    /*@GetMapping("/markdown/images/{filename}")
     public void getImage(@PathVariable String filename, javax.servlet.http.HttpServletResponse response) {
         Path filePath = Paths.get(uploadDir, filename);
 
@@ -168,5 +169,5 @@ public class MarkdownImageController {
         } catch (IOException e) {
             response.setStatus(500);
         }
-    }
+    }*/
 }

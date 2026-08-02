@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   fetchTodoById,
@@ -16,6 +16,13 @@ const router = useRouter()
 const todo = ref(null)
 const loading = ref(true)
 const shareCopied = ref(false)
+
+// 修复 <?xml 等 XML 处理指令导致 Vue 模板编译器崩溃的 bug
+const safeDesc = computed(() => {
+  const text = todo.value?.desc
+  if (!text) return '暂无描述'
+  return text.replace(/<\?/g, '&lt;?')
+})
 
 onMounted(async () => {
   try {
@@ -173,7 +180,7 @@ function getStatusClass(s) {
       <!-- 描述 -->
       <div class="info-card desc-card">
         <h3 class="card-title">详细描述</h3>
-        <v-md-preview :text="todo.desc || '暂无描述'" />
+        <v-md-preview :text="safeDesc" />
       </div>
 
       <!-- 附件列表 -->

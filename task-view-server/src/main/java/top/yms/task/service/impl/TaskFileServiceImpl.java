@@ -36,10 +36,6 @@ public class TaskFileServiceImpl extends ServiceImpl<TaskFileMapper, TaskFileEnt
     @Resource
     private IdWorker idWorker;
 
-
-    @Value("${task-file.upload-dir:./uploads/task-files}")
-    private String uploadDir;
-
     @Override
     public TaskFileEntity upload(String taskId, MultipartFile file, String uploadBy) {
         // 按日期分子目录

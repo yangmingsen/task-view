@@ -32,8 +32,8 @@ public class TaskFileController {
     @Autowired
     private TaskFileService fileService;
 
-    @Value("${task-file.upload-dir:./uploads/task-files}")
-    private String uploadDir;
+//    @Value("${task-file.upload-dir:./uploads/task-files}")
+//    private String uploadDir;
 
     @Resource
     private StorageClient storageClient;
@@ -143,8 +143,10 @@ public class TaskFileController {
         }
         // 删除物理文件
         try {
+            /* 改为删除文件服务器中的文件
             Path filePath = Paths.get(uploadDir, file.getFilePath());
-            Files.deleteIfExists(filePath);
+            Files.deleteIfExists(filePath); */
+            storageClient.destroy(file.getFilePath());
         } catch (Exception ignored) {}
         fileService.removeById(fileId);
         return R.ok();
