@@ -5,7 +5,7 @@ import {
   fetchTodoById,
   createTodo,
   updateTodo,
-} from '@/mock/data.js'
+} from '../api/task.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -39,7 +39,7 @@ onMounted(async () => {
   if (isEdit.value) {
     loading.value = true
     try {
-      const todo = await fetchTodoById(Number(route.params.id))
+      const todo = await fetchTodoById(route.params.id)
       form.value = {
         id: todo.id,
         title: todo.title,

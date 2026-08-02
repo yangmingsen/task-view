@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@kangc/v-md-editor": "^2.3.18",
+    "axios": "^1.19.0",
     "vue": "^3.5.40",
     "vue-router": "^4.6.4"
   },

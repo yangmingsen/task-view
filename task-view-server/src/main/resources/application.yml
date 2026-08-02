@@ -1,6 +1,11 @@
 server:
   port: 8080
 
+cors:
+  allowed-hosts: 127.0.0.1,localhost
+  allowed-ports: 5173
+  allowed-method: OPTIONS,HEAD,GET,POST,PUT,DELETE,PATCH
+
 spring:
   profiles:
     active: dev

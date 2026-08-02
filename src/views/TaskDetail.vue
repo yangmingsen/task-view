@@ -7,7 +7,7 @@ import {
   getTypeLabel,
   getStatusLabel,
   getPriorityLabel,
-} from '@/mock/data.js'
+} from '../api/task.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -18,7 +18,7 @@ const shareCopied = ref(false)
 
 onMounted(async () => {
   try {
-    todo.value = await fetchTodoById(Number(route.params.id))
+    todo.value = await fetchTodoById(route.params.id)
   } catch (e) {
     alert('获取详情失败: ' + e.message)
     router.push('/')

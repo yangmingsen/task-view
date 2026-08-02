@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { login } from '../api/auth.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -23,20 +24,17 @@ async function handleLogin() {
   }
 
   loading.value = true
-  // 模拟登录请求
-  await new Promise((resolve) => setTimeout(resolve, 800))
-
-  // 简单模拟：用户名和密码非空即可登录
-  if (username.value.trim() && password.value.trim()) {
-    localStorage.setItem('isLoggedIn', 'true')
-    localStorage.setItem('token', 'mock-token-' + Date.now())
-    localStorage.setItem('user', JSON.stringify({ name: username.value.trim() }))
+  try {
+    const data = await login(username.value.trim(), password.value.trim())
+    localStorage.setItem('token', data.token)
+    localStorage.setItem('user', JSON.stringify(data.user))
     const redirect = route.query.redirect || '/'
     router.push(redirect)
-  } else {
-    errorMsg.value = '用户名或密码错误'
+  } catch (e) {
+    errorMsg.value = e.message || '登录失败，请检查用户名和密码'
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 }
 
 function handleKeydown(e) {
@@ -86,7 +84,7 @@ function handleKeydown(e) {
           {{ loading ? '登录中...' : '登 录' }}
         </button>
 
-        <p class="login-hint">提示：输入任意用户名和密码即可登录（模拟）</p>
+        <p class="login-hint">提示：输入已注册的用户名和密码登录</p>
       </div>
     </div>
   </div>

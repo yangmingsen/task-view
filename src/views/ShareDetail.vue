@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { fetchTodoById, getTypeLabel, getStatusLabel, getPriorityLabel } from '@/mock/data.js'
+import { fetchTodoById, getTypeLabel, getStatusLabel, getPriorityLabel } from '../api/task.js'
 
 const route = useRoute()
 const todo = ref(null)
@@ -32,7 +32,7 @@ function getStatusClass(s) {
 
 onMounted(async () => {
   try {
-    const id = Number(route.params.id)
+    const id = route.params.id
     todo.value = await fetchTodoById(id)
   } catch (e) {
     error.value = '待办不存在或已被删除'

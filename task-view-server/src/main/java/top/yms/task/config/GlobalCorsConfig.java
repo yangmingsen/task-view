@@ -1,4 +1,4 @@
-package top.yms.note.config;
+package top.yms.task.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import top.yms.note.utils.HostIPUtil;
+import top.yms.task.util.HostIPUtil;
 
 import java.util.Arrays;
 

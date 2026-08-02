@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.yms.task.mapper.TaskMapper">
+
+    <!-- 全局搜索：title、assigned_to、project 使用 LIKE，description 使用 FULLTEXT -->
+    <select id="search" resultType="top.yms.task.entity.TaskEntity">
+        SELECT * FROM t_task
+        WHERE title         LIKE CONCAT('%', #{keyword}, '%')
+           OR assigned_to   LIKE CONCAT('%', #{keyword}, '%')
+           OR project       LIKE CONCAT('%', #{keyword}, '%')
+           OR MATCH(title, description) AGAINST(#{keyword} IN BOOLEAN MODE)
+    </select>
+
+</mapper>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { searchTodos, getTypeLabel, getStatusLabel } from '@/mock/data.js'
+import { searchTodos, getTypeLabel, getStatusLabel } from '@/api/task.js'
 
 const router = useRouter()
 

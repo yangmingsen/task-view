@@ -7,8 +7,9 @@ import {
   getTypeLabel,
   getStatusLabel,
   getPriorityLabel,
-} from '@/mock/data.js'
-import GlobalSearch from '@/components/GlobalSearch.vue'
+} from '../api/task.js'
+//} from '@/mock/data.js'
+import GlobalSearch from '../components/GlobalSearch.vue'
 
 const router = useRouter()
 
@@ -141,7 +142,7 @@ function getStatusClass(s) {
 }
 
 function handleLogout() {
-  localStorage.removeItem('isLoggedIn')
+  localStorage.clear()
   router.push('/login')
 }
 
