@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { fetchTodoById, getTypeLabel, getStatusLabel, getPriorityLabel } from '../api/task.js'
 
@@ -7,13 +7,6 @@ const route = useRoute()
 const todo = ref(null)
 const loading = ref(true)
 const error = ref('')
-
-// 修复 <?xml 等 XML 处理指令导致 v-md-preview 崩溃的 bug
-const safeDesc = computed(() => {
-  const text = todo.value?.desc
-  if (!text) return '暂无描述'
-  return text.replace(/<\?/g, '&lt;?')
-})
 
 function getTypeClass(type) {
   if (type === 'bug') return 'type-bug'
@@ -118,7 +111,7 @@ onMounted(async () => {
         <div class="share-desc">
           <h3>详细描述</h3>
           <div class="share-desc-content">
-            <v-md-preview :text="safeDesc" />
+            <v-md-preview :text="todo.desc || '暂无描述'" />
           </div>
         </div>
 
