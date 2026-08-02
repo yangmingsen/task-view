@@ -8,6 +8,7 @@ import {
   getStatusLabel,
   getPriorityLabel,
 } from '../api/task.js'
+import FileList from '../components/FileList.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -174,6 +175,9 @@ function getStatusClass(s) {
         <h3 class="card-title">详细描述</h3>
         <v-md-preview :text="todo.desc || '暂无描述'" />
       </div>
+
+      <!-- 附件列表 -->
+      <FileList v-if="todo.id" :taskId="todo.id" />
     </div>
   </div>
 </template>

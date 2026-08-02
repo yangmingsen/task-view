@@ -6,6 +6,8 @@ import {
   createTodo,
   updateTodo,
 } from '../api/task.js'
+import { uploadFiles } from '../api/file.js'
+import FileUpload from '../components/FileUpload.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -27,6 +29,9 @@ const form = ref({
   module: '',
   progress: 0,
 })
+
+// 新建模式下用于文件暂存的临时 ID
+const tempId = ref('new-' + Date.now().toString(36))
 
 const priorityOptions = [
   { value: 1, label: '紧急' },
@@ -53,6 +58,7 @@ onMounted(async () => {
         module: todo.module,
         progress: todo.progress,
       }
+      tempId.value = todo.id
     } catch (e) {
       alert('获取待办失败: ' + e.message)
       router.push('/')
@@ -62,6 +68,8 @@ onMounted(async () => {
   }
 })
 
+const fileUploadRef = ref(null)
+
 async function handleSave() {
   if (!form.value.title.trim()) {
     alert('请输入标题')
@@ -69,11 +77,28 @@ async function handleSave() {
   }
   saving.value = true
   try {
+    let savedId = form.value.id
+
     if (isEdit.value) {
-      await updateTodo(form.value.id, { ...form.value })
+      await updateTodo(savedId, { ...form.value })
     } else {
-      await createTodo({ ...form.value })
+      const result = await createTodo({ ...form.value })
+      savedId = result.id
+      form.value.id = savedId
+      tempId.value = savedId
     }
+
+    // 上传待上传的本地文件
+    if (fileUploadRef.value) {
+      const localFiles = (fileUploadRef.value.files || []).filter((f) => f._local)
+      if (localFiles.length > 0) {
+        const rawFiles = localFiles.map((f) => f._file).filter(Boolean)
+        if (rawFiles.length > 0) {
+          await uploadFiles(savedId, rawFiles)
+        }
+      }
+    }
+
     router.push('/')
   } catch (e) {
     alert('保存失败: ' + e.message)
@@ -176,6 +201,13 @@ function goBack() {
         <h3 class="card-title">详细描述（支持 Markdown）</h3>
         <v-md-editor v-model="form.desc" height="500px" placeholder="请输入描述，支持 Markdown 语法"></v-md-editor>
       </div>
+
+      <!-- 附件上传 -->
+      <FileUpload
+        ref="fileUploadRef"
+        :taskId="isEdit ? form.id : ''"
+        :tempId="tempId"
+      />
     </div>
   </div>
 </template>

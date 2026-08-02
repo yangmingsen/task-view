@@ -28,3 +28,7 @@ spring:
     maxPoolPreparedStatementPerConnectionSize: 20
     useGlobalDataSourceStat: true
     connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+
+# 文件上传配置
+task-file:
+  upload-dir: ./uploads/task-files

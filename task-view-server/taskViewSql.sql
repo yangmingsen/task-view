@@ -87,6 +87,26 @@ CREATE TABLE t_task_log (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='任务操作日志表';
 
 -- ============================================================
+-- 4. 任务附件表
+-- ============================================================
+DROP TABLE IF EXISTS t_task_file;
+CREATE TABLE t_task_file (
+  id            VARCHAR(32)  NOT NULL COMMENT '主键ID',
+  task_id       VARCHAR(32)  NOT NULL COMMENT '关联任务ID',
+  file_name     VARCHAR(256) NOT NULL COMMENT '原始文件名',
+  stored_name   VARCHAR(128) NOT NULL COMMENT '存储后的文件名（UUID）',
+  file_path     VARCHAR(512) NOT NULL COMMENT '文件存储路径（相对路径）',
+  file_size     BIGINT       NOT NULL DEFAULT 0 COMMENT '文件大小（字节）',
+  file_type     VARCHAR(64)  NOT NULL DEFAULT '' COMMENT 'MIME 类型',
+  created_by    VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '上传人',
+  create_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间',
+  update_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (id),
+  KEY idx_task_id (task_id),
+  KEY idx_create_time (create_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='任务附件表';
+
+-- ============================================================
 -- 初始化数据：默认管理员账号 admin / admin123
 -- 密码为 admin123 的 BCrypt 加密值（实际项目中使用 BCryptPasswordEncoder）
 -- 此处用占位，上线前替换为真实加密值
