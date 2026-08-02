@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { fetchFiles, downloadFile, deleteFile, formatFileSize } from '@/api/file.js'
+import { fetchFiles, downloadFile, deleteFile, formatFileSize } from '../api/file.js'
 
 const props = defineProps({
   taskId: { type: String, required: true },

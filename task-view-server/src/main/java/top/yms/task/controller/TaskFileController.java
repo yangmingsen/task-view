@@ -8,12 +8,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import top.yms.storage.client.StorageClient;
 import top.yms.task.common.R;
 import top.yms.task.entity.TaskFileEntity;
 import top.yms.task.exception.BusinessException;
 import top.yms.task.service.TaskFileService;
 import top.yms.task.util.JwtUtil;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
@@ -32,6 +34,9 @@ public class TaskFileController {
 
     @Value("${task-file.upload-dir:./uploads/task-files}")
     private String uploadDir;
+
+    @Resource
+    private StorageClient storageClient;
 
     /**
      * 获取任务的附件列表
@@ -96,12 +101,14 @@ public class TaskFileController {
             response.setStatus(404);
             return;
         }
-
+        /* 改为使用storageClient sdk获取
         Path filePath = Paths.get(uploadDir, file.getFilePath());
         if (!Files.exists(filePath)) {
             response.setStatus(404);
             return;
-        }
+        }*/
+        //这里保存的是文件在文件服务器中的fileId
+        String storageFileId = file.getFilePath();
 
         try {
             String encodedName = URLEncoder.encode(file.getFileName(), "UTF-8")
@@ -111,7 +118,7 @@ public class TaskFileController {
                     "attachment; filename*=UTF-8''" + encodedName);
             response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(file.getFileSize()));
 
-            try (InputStream in = new FileInputStream(filePath.toFile());
+            try (InputStream in = storageClient.getFileStream(storageFileId);
                  OutputStream out = response.getOutputStream()) {
                 byte[] buffer = new byte[8192];
                 int len;

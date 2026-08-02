@@ -1,14 +1,19 @@
 package top.yms.task.service.impl;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import top.yms.storage.client.StorageClient;
+import top.yms.storage.entity.UploadResp;
 import top.yms.task.entity.TaskFileEntity;
 import top.yms.task.mapper.TaskFileMapper;
 import top.yms.task.service.TaskFileService;
+import top.yms.task.util.IdWorker;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -23,6 +28,15 @@ import java.util.*;
 @Service
 public class TaskFileServiceImpl extends ServiceImpl<TaskFileMapper, TaskFileEntity> implements TaskFileService {
 
+    private final static Logger log = LoggerFactory.getLogger(TaskFileServiceImpl.class);
+
+    @Resource
+    private StorageClient storageClient;
+
+    @Resource
+    private IdWorker idWorker;
+
+
     @Value("${task-file.upload-dir:./uploads/task-files}")
     private String uploadDir;
 
@@ -35,24 +49,28 @@ public class TaskFileServiceImpl extends ServiceImpl<TaskFileMapper, TaskFileEnt
         if (originalName != null && originalName.contains(".")) {
             ext = originalName.substring(originalName.lastIndexOf("."));
         }
-        String storedName = UUID.randomUUID().toString().replace("-", "") + ext;
-        String relativePath = dateDir + "/" + storedName;
+        //生成id
+        long newId = idWorker.nextId();
+        String storedName = newId + ext;
 
+        TaskFileEntity entity = new TaskFileEntity();
         try {
+            /*
             Path targetDir = Paths.get(uploadDir, dateDir);
             Files.createDirectories(targetDir);
             Path targetFile = targetDir.resolve(storedName);
-            file.transferTo(targetFile.toFile());
-        } catch (IOException e) {
+            file.transferTo(targetFile.toFile());*/
+            UploadResp uploadResp = storageClient.upload(file.getInputStream(), storedName);
+            log.info("uploadResp={}", JSONObject.toJSONString(uploadResp));
+            String fileId = uploadResp.getFileId(); //获取在文件服务器中文件id,保存到filePath中,下载时可以通过fileId下载
+            entity.setFilePath(fileId);  //填充到filePath中
+        } catch (Exception e) {
             throw new RuntimeException("文件保存失败: " + e.getMessage(), e);
         }
-
-        TaskFileEntity entity = new TaskFileEntity();
-        entity.setId(UUID.randomUUID().toString().replace("-", ""));
+        entity.setId(newId+"");
         entity.setTaskId(taskId);
         entity.setFileName(originalName != null ? originalName : "unknown");
         entity.setStoredName(storedName);
-        entity.setFilePath(relativePath);
         entity.setFileSize(file.getSize());
         entity.setFileType(file.getContentType() != null ? file.getContentType() : "application/octet-stream");
         entity.setCreatedBy(uploadBy);
