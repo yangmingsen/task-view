@@ -57,3 +57,15 @@ export function downloadFile(fileId, fileName) {
 export async function deleteFile(fileId) {
   return await request.delete(`/files/${fileId}`)
 }
+
+/**
+ * 上传 Markdown 内嵌图片（Ctrl+V 粘贴时调用）
+ * 返回 { url: '/api/markdown/images/xxx.png', name: 'original.png' }
+ */
+export async function uploadMarkdownImage(file) {
+  const formData = new FormData()
+  formData.append('image', file)
+  return await request.post('/markdown/images/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}

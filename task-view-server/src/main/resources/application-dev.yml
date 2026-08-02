@@ -1,7 +1,7 @@
 storage:
   client:
     host: 127.0.0.1
-    port: 8008
+    port: 8005
     sysId: A004_DEV
     token: f757a6f2d2904a6b9045ffb68e814e75
 
@@ -32,3 +32,7 @@ spring:
 # 文件上传配置
 task-file:
   upload-dir: ./uploads/task-files
+
+# Markdown 图片上传配置
+markdown-image:
+  upload-dir: ./uploads/markdown-images

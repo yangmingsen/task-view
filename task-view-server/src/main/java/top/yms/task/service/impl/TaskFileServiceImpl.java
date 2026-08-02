@@ -5,10 +5,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import top.yms.storage.client.StorageClient;
 import top.yms.task.entity.TaskFileEntity;
 import top.yms.task.mapper.TaskFileMapper;
 import top.yms.task.service.TaskFileService;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,9 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class TaskFileServiceImpl extends ServiceImpl<TaskFileMapper, TaskFileEntity> implements TaskFileService {

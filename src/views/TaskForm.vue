@@ -1,12 +1,12 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   fetchTodoById,
   createTodo,
   updateTodo,
 } from '../api/task.js'
-import { uploadFiles } from '../api/file.js'
+import { uploadFiles, uploadMarkdownImage } from '../api/file.js'
 import FileUpload from '../components/FileUpload.vue'
 
 const route = useRoute()
@@ -15,6 +15,7 @@ const router = useRouter()
 const isEdit = computed(() => !!route.params.id)
 const pageTitle = computed(() => isEdit.value ? '编辑待办' : '新建待办')
 const saving = ref(false)
+const saved = ref(false)
 const loading = ref(false)
 
 const form = ref({
@@ -66,15 +67,100 @@ onMounted(async () => {
       loading.value = false
     }
   }
+
+  // 绑定 Markdown 编辑器的粘贴事件，支持 Ctrl+V 粘贴图片
+  await nextTick()
+  const editorEl = mdEditorRef.value?.$el
+  if (editorEl) {
+    editorEl.addEventListener('paste', handlePaste)
+  }
+
+  // 绑定 Ctrl+S 快捷键保存
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  const editorEl = mdEditorRef.value?.$el
+  if (editorEl) {
+    editorEl.removeEventListener('paste', handlePaste)
+  }
+  document.removeEventListener('keydown', handleKeydown)
 })
 
 const fileUploadRef = ref(null)
+const mdEditorRef = ref(null)
+
+// Markdown 编辑器粘贴图片处理
+async function handlePaste(event) {
+  const items = event.clipboardData?.items
+  if (!items) return
+
+  // 收集剪贴板中的图片文件
+  const imageFiles = []
+  for (const item of items) {
+    if (item.type && item.type.startsWith('image/')) {
+      const file = item.getAsFile()
+      if (file) imageFiles.push(file)
+    }
+  }
+
+  // 没有图片则走默认粘贴文本行为
+  if (imageFiles.length === 0) return
+  event.preventDefault()
+
+  // 获取编辑器内 textarea 的光标位置
+  const textarea = mdEditorRef.value?.$el?.querySelector?.('textarea')
+  const cursorStart = textarea?.selectionStart ?? form.value.desc.length
+  const cursorEnd = textarea?.selectionEnd ?? form.value.desc.length
+
+  // 上传所有图片并插入 Markdown 语法
+  try {
+    const results = await Promise.all(
+      imageFiles.map((f) => uploadMarkdownImage(f)),
+    )
+    const mdLines = results.map((r) => `![](${r.url})`).join('\n')
+
+    const before = form.value.desc.substring(0, cursorStart)
+    const after = form.value.desc.substring(cursorEnd)
+
+    // 在光标前后加上换行，确保图片独立成行
+    const prefix = cursorStart > 0 && !before.endsWith('\n') ? '\n' : ''
+    const suffix = after.length > 0 && !after.startsWith('\n') ? '\n' : ''
+
+    form.value.desc = before + prefix + mdLines + suffix + after
+
+    // 尝试恢复光标到插入内容末尾
+    await nextTick()
+    if (textarea) {
+      const newPos = cursorStart + prefix.length + mdLines.length + suffix.length
+      try { textarea.setSelectionRange(newPos, newPos) } catch (_) { /* ignore */ }
+      try { textarea.focus() } catch (_) { /* ignore */ }
+    }
+  } catch (e) {
+    alert('图片上传失败: ' + (e.message || '未知错误'))
+  }
+}
+
+// Ctrl+S 快捷键保存：阻止浏览器默认行为，保存后不跳转
+function handleKeydown(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault()
+    if (!saving.value) {
+      doSave(false)
+    }
+  }
+}
 
 async function handleSave() {
   if (!form.value.title.trim()) {
     alert('请输入标题')
     return
   }
+  await doSave(true)
+}
+
+// 核心保存逻辑，redirect 控制是否跳转回列表页
+async function doSave(redirect) {
   saving.value = true
   try {
     let savedId = form.value.id
@@ -99,7 +185,14 @@ async function handleSave() {
       }
     }
 
-    router.push('/')
+    if (redirect) {
+      router.push('/')
+    } else {
+      saved.value = true
+      setTimeout(() => {
+        saved.value = false
+      }, 2000)
+    }
   } catch (e) {
     alert('保存失败: ' + e.message)
   } finally {
@@ -123,6 +216,8 @@ function goBack() {
       <button class="btn-back" @click="goBack">← 返回</button>
       <h2>{{ pageTitle }}</h2>
       <div class="header-actions">
+        <span class="save-hint" v-if="saved">✅ 已保存</span>
+        <span class="save-hint muted" v-else>Ctrl+S 保存</span>
         <button class="btn btn-primary" @click="handleSave" :disabled="saving">
           {{ saving ? '保存中...' : '💾 保存' }}
         </button>
@@ -199,7 +294,7 @@ function goBack() {
 
       <div class="form-card desc-card">
         <h3 class="card-title">详细描述（支持 Markdown）</h3>
-        <v-md-editor v-model="form.desc" height="500px" placeholder="请输入描述，支持 Markdown 语法"></v-md-editor>
+        <v-md-editor ref="mdEditorRef" v-model="form.desc" height="500px" placeholder="请输入描述，支持 Markdown 语法"></v-md-editor>
       </div>
 
       <!-- 附件上传 -->
@@ -242,6 +337,18 @@ function goBack() {
 .header-actions {
   display: flex;
   gap: 10px;
+  align-items: center;
+}
+
+.save-hint {
+  font-size: 13px;
+  color: #2e7d32;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.save-hint.muted {
+  color: #999;
 }
 
 .btn-back {
