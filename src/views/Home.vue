@@ -25,8 +25,8 @@ function onGlobalKeydown(e) {
 
 onMounted(() => {
   window.addEventListener('keydown', onGlobalKeydown)
-  const restored = loadFilters()
-  if (!restored) loadList()
+  loadFilters()
+  loadList()
 })
 
 function loadFilters() {
@@ -37,10 +37,8 @@ function loadFilters() {
       filterType.value = saved.filterType || ''
       filterStatus.value = saved.filterStatus || ''
       currentPage.value = saved.currentPage || 1
-      return true
     }
   } catch { /* ignore */ }
-  return false
 }
 
 onUnmounted(() => {
