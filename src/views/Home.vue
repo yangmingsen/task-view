@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   fetchTodos,
-  deleteTodo,
+  updateTodo,
   getTypeLabel,
   getStatusLabel,
   getPriorityLabel,
@@ -103,13 +103,30 @@ function goEdit(todo) {
   router.push(`/task/${todo.id}/edit`)
 }
 
-async function handleDelete(id) {
-  if (!confirm('确定要删除该待办吗？此操作不可撤销。')) return
+async function handleStart(todo) {
   try {
-    await deleteTodo(id)
+    await updateTodo(todo.id, { ...todo, status: 'doing' })
     loadList()
   } catch (e) {
-    alert('删除失败: ' + e.message)
+    alert('操作失败: ' + e.message)
+  }
+}
+
+async function handleComplete(todo) {
+  try {
+    await updateTodo(todo.id, { ...todo, status: 'done', progress: 100 })
+    loadList()
+  } catch (e) {
+    alert('操作失败: ' + e.message)
+  }
+}
+
+async function handleClose(todo) {
+  try {
+    await updateTodo(todo.id, { ...todo, status: 'closed' })
+    loadList()
+  } catch (e) {
+    alert('操作失败: ' + e.message)
   }
 }
 
@@ -144,6 +161,11 @@ function getStatusClass(s) {
 function handleLogout() {
   localStorage.clear()
   router.push('/login')
+}
+
+function formatDeadline(dateStr) {
+  if (!dateStr) return ''
+  return dateStr.substring(0, 10)
 }
 
 
@@ -202,9 +224,9 @@ function handleLogout() {
                 <th>标题</th>
                 <th style="width: 80px">状态</th>
                 <th style="width: 80px">负责人</th>
-                <th style="width: 110px">截止日期</th>
+                <th style="width: 120px">截止日期</th>
                 <th style="width: 80px">进度</th>
-                <th style="width: 130px">操作</th>
+                <th style="width: 260px">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -232,8 +254,8 @@ function handleLogout() {
                   </span>
                 </td>
                 <td>{{ todo.assignedTo }}</td>
-                <td class="cell-deadline" :class="{ overdue: todo.deadline < '2026-08-02' && todo.status !== 'done' && todo.status !== 'closed' }">
-                  {{ todo.deadline }}
+                <td class="cell-deadline" :class="{ overdue: formatDeadline(todo.deadline) < new Date().toISOString().substring(0, 10) && todo.status !== 'done' && todo.status !== 'closed' }">
+                  {{ formatDeadline(todo.deadline) }}
                 </td>
                 <td>
                   <div class="progress-bar-mini">
@@ -242,7 +264,9 @@ function handleLogout() {
                 </td>
                 <td class="cell-actions" @click.stop>
                   <button class="btn-sm btn-edit" @click="goEdit(todo)">编辑</button>
-                  <button class="btn-sm btn-delete" @click="handleDelete(todo.id)">删除</button>
+                  <button v-if="todo.status === 'wait'" class="btn-sm btn-start" @click="handleStart(todo)">开始</button>
+                  <button v-if="todo.status === 'wait' || todo.status === 'doing'" class="btn-sm btn-done" @click="handleComplete(todo)">完成</button>
+                  <button v-if="todo.status === 'wait' || todo.status === 'doing' || todo.status === 'done'" class="btn-sm btn-close" @click="handleClose(todo)">关闭</button>
                 </td>
               </tr>
             </tbody>
@@ -500,6 +524,24 @@ function handleLogout() {
   display: flex;
   gap: 6px;
 }
+
+.btn-start {
+  color: #fa8c16;
+  border-color: #ffd591;
+}
+.btn-start:hover { border-color: #fa8c16; color: #fa8c16; background: #fff7e6; }
+
+.btn-done {
+  color: #52c41a;
+  border-color: #b7eb8f;
+}
+.btn-done:hover { border-color: #52c41a; color: #52c41a; background: #f6ffed; }
+
+.btn-close {
+  color: #999;
+  border-color: #d9d9d9;
+}
+.btn-close:hover { border-color: #999; color: #666; background: #fafafa; }
 
 /* ========== 空状态 & 加载 ========== */
 .empty-state {
