@@ -249,10 +249,10 @@ function formatDeadline(dateStr) {
             <thead>
               <tr>
                 <th style="width: 60px">ID</th>
-                <th style="width: 70px">类型</th>
-                <th style="width: 60px">优先级</th>
-                <th>标题</th>
-                <th style="width: 80px">状态</th>
+<th style="width: 80px">类型</th>
+<th style="width: 80px">优先级</th>
+<th>标题</th>
+<th style="width: 90px">状态</th>
                 <th style="width: 80px">负责人</th>
                 <th style="width: 120px">截止日期</th>
                 <th style="width: 80px">进度</th>

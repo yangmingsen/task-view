@@ -70,7 +70,7 @@ public class TaskFileServiceImpl extends ServiceImpl<TaskFileMapper, TaskFileEnt
         entity.setFileSize(file.getSize());
         String fileType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
         if (fileType.length() > 63) {
-            fileType = ext;
+            fileType = ext.substring(1);
         }
         entity.setFileType(fileType);
         entity.setCreatedBy(uploadBy);
