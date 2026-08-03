@@ -25,7 +25,7 @@ const form = ref({
   priority: 3,
   status: 'wait',
   assignedTo: '',
-  deadline: '',
+  deadline: new Date().toISOString().substring(0, 10),
   desc: '',
   project: '',
   module: '',
