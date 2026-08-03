@@ -169,6 +169,7 @@ function getTypeClass(type) {
   if (type === 'bug') return 'type-bug'
   if (type === 'story') return 'type-story'
   if (type === 'task') return 'type-task'
+  if (type === 'problem') return 'type-problem'
   return ''
 }
 
