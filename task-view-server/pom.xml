@@ -27,6 +27,8 @@
         <commons.version>3.7</commons.version>
         <transmittable-thread-local.version>2.10.1</transmittable-thread-local.version>
         <storage.sdk.version>1.0.2</storage.sdk.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
     <dependencies>
         <dependency>

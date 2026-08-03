@@ -12,7 +12,7 @@ cors:
   allowed-method: OPTIONS,HEAD,GET,POST,PUT,DELETE,PATCH
 
 server:
-  port: 8008
+  port: 8009
 
 spring:
   datasource:
