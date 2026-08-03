@@ -25,14 +25,40 @@ function onGlobalKeydown(e) {
 
 onMounted(() => {
   window.addEventListener('keydown', onGlobalKeydown)
-  loadList()
+  const restored = loadFilters()
+  if (!restored) loadList()
 })
+
+function loadFilters() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(FILTER_KEY))
+    if (saved) {
+      keyword.value = saved.keyword || ''
+      filterType.value = saved.filterType || ''
+      filterStatus.value = saved.filterStatus || ''
+      currentPage.value = saved.currentPage || 1
+      return true
+    }
+  } catch { /* ignore */ }
+  return false
+}
 
 onUnmounted(() => {
   window.removeEventListener('keydown', onGlobalKeydown)
 })
 
 /* ========== 搜索 & 筛选 ========== */
+const FILTER_KEY = 'home_filters'
+
+function saveFilters() {
+  localStorage.setItem(FILTER_KEY, JSON.stringify({
+    keyword: keyword.value,
+    filterType: filterType.value,
+    filterStatus: filterStatus.value,
+    currentPage: currentPage.value,
+  }))
+}
+
 const keyword = ref('')
 const filterType = ref('')
 const filterStatus = ref('')
@@ -84,6 +110,10 @@ function onSearch() {
   currentPage.value = 1
   loadList()
 }
+
+watch([filterStatus, filterType, keyword, currentPage], () => {
+  saveFilters()
+})
 
 watch([filterStatus, filterType], () => {
   currentPage.value = 1
