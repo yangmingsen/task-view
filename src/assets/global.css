@@ -126,6 +126,12 @@ body {
   border: 1px solid #b7eb8f;
 }
 
+.type-problem {
+  background: #fff7e6;
+  color: #d46b08;
+  border: 1px solid #ffd591;
+}
+
 .priority-tag {
   display: inline-block;
   padding: 2px 8px;

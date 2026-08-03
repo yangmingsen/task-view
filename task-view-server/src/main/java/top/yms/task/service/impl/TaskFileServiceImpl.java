@@ -68,7 +68,11 @@ public class TaskFileServiceImpl extends ServiceImpl<TaskFileMapper, TaskFileEnt
         entity.setFileName(originalName != null ? originalName : "unknown");
         entity.setStoredName(storedName);
         entity.setFileSize(file.getSize());
-        entity.setFileType(file.getContentType() != null ? file.getContentType() : "application/octet-stream");
+        String fileType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
+        if (fileType.length() > 63) {
+            fileType = ext.substring(1);
+        }
+        entity.setFileType(fileType);
         entity.setCreatedBy(uploadBy);
         entity.setCreateTime(new Date());
         entity.setUpdateTime(new Date());

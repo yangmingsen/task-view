@@ -63,10 +63,21 @@ function copyShareLink() {
   })
 }
 
+function formatDate(str) {
+  if (!str) return ''
+  return str.substring(0, 10)
+}
+
+function formatDateTime(str) {
+  if (!str) return ''
+  return str.substring(0, 10) + ' ' + str.substring(11, 19)
+}
+
 function getTypeClass(type) {
   if (type === 'bug') return 'type-bug'
   if (type === 'story') return 'type-story'
   if (type === 'task') return 'type-task'
+  if (type === 'problem') return 'type-problem'
   return ''
 }
 
@@ -135,8 +146,8 @@ function getStatusClass(s) {
             </div>
             <div class="info-item">
               <label>截止日期</label>
-              <span class="info-value" :class="{ overdue: todo.deadline < '2026-08-02' && todo.status !== 'done' && todo.status !== 'closed' }">
-                {{ todo.deadline }}
+              <span class="info-value" :class="{ overdue: formatDate(todo.deadline) < formatDate(new Date().toISOString()) && todo.status !== 'done' && todo.status !== 'closed' }">
+                {{ formatDate(todo.deadline) }}
               </span>
             </div>
             <div class="info-item">
@@ -163,8 +174,12 @@ function getStatusClass(s) {
               <span class="info-value">{{ todo.createdBy }}</span>
             </div>
             <div class="info-item">
-              <label>创建日期</label>
-              <span class="info-value">{{ todo.createdDate }}</span>
+              <label>创建时间</label>
+              <span class="info-value">{{ formatDateTime(todo.createTime) }}</span>
+            </div>
+            <div class="info-item">
+              <label>更新时间</label>
+              <span class="info-value">{{ formatDateTime(todo.updateTime) }}</span>
             </div>
           </div>
         </div>

@@ -12,7 +12,18 @@ function getTypeClass(type) {
   if (type === 'bug') return 'type-bug'
   if (type === 'story') return 'type-story'
   if (type === 'task') return 'type-task'
+  if (type === 'problem') return 'type-problem'
   return ''
+}
+
+function formatDate(str) {
+  if (!str) return ''
+  return str.substring(0, 10)
+}
+
+function formatDateTime(str) {
+  if (!str) return ''
+  return str.substring(0, 10) + ' ' + str.substring(11, 19)
 }
 
 function getPriorityClass(p) {
@@ -78,7 +89,7 @@ onMounted(async () => {
           </div>
           <div class="meta-item">
             <span class="meta-label">截止日期</span>
-            <span class="meta-value">{{ todo.deadline }}</span>
+            <span class="meta-value">{{ formatDate(todo.deadline) }}</span>
           </div>
           <div class="meta-item">
             <span class="meta-label">所属项目</span>
@@ -93,8 +104,12 @@ onMounted(async () => {
             <span class="meta-value">{{ todo.createdBy }}</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">创建日期</span>
-            <span class="meta-value">{{ todo.createdDate }}</span>
+            <span class="meta-label">创建时间</span>
+            <span class="meta-value">{{ formatDateTime(todo.createTime) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">更新时间</span>
+            <span class="meta-value">{{ formatDateTime(todo.updateTime) }}</span>
           </div>
         </div>
 
