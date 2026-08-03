@@ -10,7 +10,7 @@ function toTodo(backend) {
 
 // ======================== 标签映射（纯常量，不依赖接口） ========================
 
-export const typeMap = { story: '需求', bug: 'Bug', task: '任务' }
+export const typeMap = { story: '需求', bug: 'Bug', task: '任务', problem: '问题' }
 export const statusMap = { wait: '未开始', doing: '进行中', done: '已完成', closed: '已关闭' }
 export const priorityMap = { 1: '紧急', 2: '高', 3: '中', 4: '低' }
 

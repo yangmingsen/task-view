@@ -74,6 +74,7 @@ const typeTabs = [
   { key: 'story', label: '需求' },
   { key: 'bug', label: 'Bug' },
   { key: 'task', label: '任务' },
+  { key: 'problem', label: '问题' },
 ]
 
 /* ========== 列表 & 分页 ========== */

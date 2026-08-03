@@ -248,6 +248,7 @@ function goBack() {
                 <option value="story">需求</option>
                 <option value="bug">Bug</option>
                 <option value="task">任务</option>
+                <option value="problem">问题</option>
               </select>
             </div>
             <div class="form-item">
