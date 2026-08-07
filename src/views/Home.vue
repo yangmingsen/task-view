@@ -134,7 +134,9 @@ function goEdit(todo) {
 
 async function handleStart(todo) {
   try {
-    await updateTodo(todo.id, { ...todo, status: 'doing' })
+    // eslint-disable-next-line no-unused-vars
+    const { desc, ...data } = todo
+    await updateTodo(todo.id, { ...data, status: 'doing' })
     loadList()
   } catch (e) {
     alert('操作失败: ' + e.message)
@@ -143,7 +145,9 @@ async function handleStart(todo) {
 
 async function handleComplete(todo) {
   try {
-    await updateTodo(todo.id, { ...todo, status: 'done', progress: 100 })
+    // eslint-disable-next-line no-unused-vars
+    const { desc, ...data } = todo
+    await updateTodo(todo.id, { ...data, status: 'done', progress: 100 })
     loadList()
   } catch (e) {
     alert('操作失败: ' + e.message)
@@ -152,7 +156,9 @@ async function handleComplete(todo) {
 
 async function handleClose(todo) {
   try {
-    await updateTodo(todo.id, { ...todo, status: 'closed' })
+    // eslint-disable-next-line no-unused-vars
+    const { desc, ...data } = todo
+    await updateTodo(todo.id, { ...data, status: 'closed' })
     loadList()
   } catch (e) {
     alert('操作失败: ' + e.message)

@@ -54,7 +54,7 @@ onMounted(async () => {
         priority: todo.priority,
         status: todo.status,
         assignedTo: todo.assignedTo,
-        deadline: todo.deadline,
+        deadline: todo.deadline ? todo.deadline.substring(0, 10) : '',
         desc: todo.desc,
         project: todo.project,
         module: todo.module,

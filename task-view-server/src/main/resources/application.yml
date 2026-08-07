@@ -1,4 +1,7 @@
 spring:
+  jackson:
+    # 指定时区为东八区
+    time-zone: GMT+8
   servlet:
     multipart:
       max-file-size: 50MB
