@@ -8,3 +8,7 @@ spring:
       max-request-size: 50MB
   profiles:
     active: dev
+
+# 分享功能配置
+share:
+  token-expire-days: 7

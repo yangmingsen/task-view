@@ -1,12 +1,19 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { fetchTodoById, getTypeLabel, getStatusLabel, getPriorityLabel } from '../api/task.js'
+import { getTypeLabel, getStatusLabel, getPriorityLabel } from '../api/task.js'
+import { fetchShareTask } from '../api/share.js'
+import FileList from '../components/FileList.vue'
 
 const route = useRoute()
 const todo = ref(null)
+const shareFiles = ref([])
 const loading = ref(true)
 const error = ref('')
+
+// 从 URL 获取分享参数
+const apiHost = ref('')
+const token = ref('')
 
 function getTypeClass(type) {
   if (type === 'bug') return 'type-bug'
@@ -42,11 +49,29 @@ function getStatusClass(s) {
 }
 
 onMounted(async () => {
+  const id = route.params.id
+  token.value = route.query.token || ''
+  apiHost.value = route.query.api || ''
+
+  if (!apiHost.value || !token.value) {
+    error.value = '分享链接参数不完整'
+    loading.value = false
+    return
+  }
+
   try {
-    const id = route.params.id
-    todo.value = await fetchTodoById(id)
+    const res = await fetchShareTask(apiHost.value, id, token.value)
+    // axios 直接请求，res.data 是 { code, data: { task, files }, message }
+    const body = res.data
+    if (body.code === 200 && body.data) {
+      todo.value = body.data.task
+      shareFiles.value = body.data.files || []
+    } else {
+      error.value = body.message || '获取待办信息失败'
+    }
   } catch (e) {
-    error.value = '待办不存在或已被删除'
+    const msg = e.response?.data?.message || e.message || '网络请求失败'
+    error.value = msg
   } finally {
     loading.value = false
   }
@@ -130,6 +155,11 @@ onMounted(async () => {
           </div>
         </div>
 
+        <!-- 附件 -->
+        <div class="share-files">
+          <FileList :task-id="todo.id" :api-host="apiHost" :token="token" :files="shareFiles" />
+        </div>
+
         <!-- 底部 -->
         <div class="share-footer">
           <p class="footer-brand">📋 待办系统</p>
@@ -148,7 +178,7 @@ onMounted(async () => {
 }
 
 .share-container {
-  max-width: 700px;
+  max-width: 80%;
   margin: 0 auto;
 }
 

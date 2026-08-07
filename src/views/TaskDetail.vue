@@ -8,6 +8,7 @@ import {
   getStatusLabel,
   getPriorityLabel,
 } from '../api/task.js'
+import { createShareLink } from '../api/share.js'
 import FileList from '../components/FileList.vue'
 
 const route = useRoute()
@@ -46,21 +47,30 @@ async function handleDelete() {
   }
 }
 
-function copyShareLink() {
-  const url = window.location.origin + '/share/' + todo.value.id
-  navigator.clipboard.writeText(url).then(() => {
-    shareCopied.value = true
-    setTimeout(() => { shareCopied.value = false }, 2000)
-  }).catch(() => {
-    const input = document.createElement('input')
-    input.value = url
-    document.body.appendChild(input)
-    input.select()
-    document.execCommand('copy')
-    document.body.removeChild(input)
-    shareCopied.value = true
-    setTimeout(() => { shareCopied.value = false }, 2000)
-  })
+async function copyShareLink() {
+  try {
+    const data = await createShareLink(todo.value.id)
+    const shareUrl = data.shareUrl
+    if (!shareUrl) {
+      alert('生成分享链接失败')
+      return
+    }
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      shareCopied.value = true
+      setTimeout(() => { shareCopied.value = false }, 2000)
+    }).catch(() => {
+      const input = document.createElement('input')
+      input.value = shareUrl
+      document.body.appendChild(input)
+      input.select()
+      document.execCommand('copy')
+      document.body.removeChild(input)
+      shareCopied.value = true
+      setTimeout(() => { shareCopied.value = false }, 2000)
+    })
+  } catch (e) {
+    alert('生成分享链接失败: ' + (e.message || e))
+  }
 }
 
 function formatDate(str) {
