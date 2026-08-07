@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import top.yms.task.common.R;
+import top.yms.task.util.JwtUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,6 +46,15 @@ public class AuthInterceptor implements HandlerInterceptor {
             Map<String, Object> body = new HashMap<>();
             body.put("code", 401);
             body.put("message", "未登录");
+            response.getWriter().write(JSONObject.toJSONString(body));
+            return false;
+        }
+        if (!JwtUtil.validateToken(auth)) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("code", 401);
+            body.put("message", "Token 已过期");
+            response.setStatus(401);
+            response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write(JSONObject.toJSONString(body));
             return false;
         }
