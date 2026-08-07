@@ -38,12 +38,12 @@ export async function uploadFiles(taskId, files) {
  */
 export function downloadFile(fileId, fileName) {
   const token = localStorage.getItem('token')
-  const url = `/api/files/${fileId}/download`
+  const base = import.meta.env.VITE_API_BASE_URL || '/api'
+  const url = `${base}/files/${fileId}/download`
   const a = document.createElement('a')
   a.href = url
   a.download = fileName || ''
   if (token) {
-    // 通过查询参数带 token（后端若不需要可忽略）
     a.href = url + '?token=' + encodeURIComponent(token)
   }
   document.body.appendChild(a)

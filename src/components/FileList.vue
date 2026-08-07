@@ -1,23 +1,43 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { fetchFiles, downloadFile, deleteFile, formatFileSize } from '../api/file.js'
+import { downloadShareFile } from '../api/share.js'
 
 const props = defineProps({
   taskId: { type: String, required: true },
+  /** 分享模式：后端 API host */
+  apiHost: { type: String, default: '' },
+  /** 分享模式：访问令牌 */
+  token: { type: String, default: '' },
+  /** 分享模式：预加载的文件列表 */
+  files: { type: Array, default: null },
 })
 
-const files = ref([])
+const fileList = ref([])
 const loading = ref(false)
+const isShare = () => !!props.apiHost
 
 async function loadFiles() {
+  if (isShare() && props.files) {
+    fileList.value = props.files
+    return
+  }
   loading.value = true
   try {
-    files.value = await fetchFiles(props.taskId)
+    fileList.value = await fetchFiles(props.taskId)
   } catch (e) {
     console.error('获取附件列表失败:', e)
-    files.value = []
+    fileList.value = []
   } finally {
     loading.value = false
+  }
+}
+
+function handleDownload(file) {
+  if (isShare()) {
+    downloadShareFile(props.apiHost, file.id, file.fileName, props.token)
+  } else {
+    downloadFile(file.id, file.fileName)
   }
 }
 
@@ -37,17 +57,17 @@ onMounted(loadFiles)
 
 <template>
   <div class="file-attach-card">
-    <h3 class="card-title">📎 附件 ({{ files.length }})</h3>
+    <h3 class="card-title">📎 附件 ({{ fileList.length }})</h3>
     <div class="file-loading" v-if="loading">加载中...</div>
-    <div class="file-empty" v-else-if="files.length === 0">暂无附件</div>
+    <div class="file-empty" v-else-if="fileList.length === 0">暂无附件</div>
     <ul class="file-list" v-else>
-      <li v-for="f in files" :key="f.id" class="file-item">
+      <li v-for="f in fileList" :key="f.id" class="file-item">
         <span class="file-icon">{{ getIcon(f.fileType) }}</span>
         <div class="file-info">
           <span class="file-name">{{ f.fileName }}</span>
           <span class="file-meta">{{ formatFileSize(f.fileSize) }} · {{ f.createdBy }} · {{ (f.createTime || '').slice(0, 10) }}</span>
         </div>
-        <a class="file-download" @click.prevent="downloadFile(f.id, f.fileName)" href="#" title="下载">⬇️</a>
+        <a class="file-download" @click.prevent="handleDownload(f)" href="#" title="下载">⬇️</a>
       </li>
     </ul>
   </div>

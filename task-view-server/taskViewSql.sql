@@ -111,5 +111,22 @@ CREATE TABLE t_task_file (
 -- 密码为 admin123
 -- 此处用占位，上线前替换为真实加密值
 -- ============================================================
+-- ============================================================
+-- 5. 分享记录表
+-- ============================================================
+DROP TABLE IF EXISTS t_share;
+CREATE TABLE t_share (
+  id            VARCHAR(32)  NOT NULL COMMENT '主键ID',
+  task_id       VARCHAR(32)  NOT NULL COMMENT '关联任务ID',
+  token         VARCHAR(64)  NOT NULL COMMENT '访问令牌（UUID）',
+  expire_time   DATETIME     NOT NULL COMMENT '过期时间',
+  create_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (id),
+  KEY idx_task_id (task_id),
+  KEY idx_token (token),
+  KEY idx_expire_time (expire_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='分享记录表';
+
 INSERT INTO t_user (id, username, password, real_name, email, status) VALUES
 ('1', 'admin', '202cb962ac59075b964b07152d234b70', '管理员', 'admin@taskview.com', 1);
