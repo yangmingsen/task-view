@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   fetchTodos,
@@ -29,7 +29,10 @@ onMounted(() => {
   loadList()
 })
 
+let restoring = false
+
 function loadFilters() {
+  restoring = true
   try {
     const saved = JSON.parse(localStorage.getItem(FILTER_KEY))
     if (saved) {
@@ -39,6 +42,7 @@ function loadFilters() {
       currentPage.value = saved.currentPage || 1
     }
   } catch { /* ignore */ }
+  nextTick(() => { restoring = false })
 }
 
 onUnmounted(() => {
@@ -115,7 +119,7 @@ watch([filterStatus, filterType, keyword, currentPage], () => {
 })
 
 watch([filterStatus, filterType], () => {
-  currentPage.value = 1
+  if (!restoring) currentPage.value = 1
   loadList()
 })
 
