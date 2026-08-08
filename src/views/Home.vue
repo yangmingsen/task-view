@@ -263,8 +263,10 @@ function formatDeadline(dateStr) {
     <!-- ========== 顶部导航 ========== -->
     <header class="header">
       <h1 class="logo">📋 待办系统</h1>
-      <button class="btn-admin" @click="$router.push('/admin')">管理</button>
-      <button class="btn-logout" @click="handleLogout">退出</button>
+      <div class="header-actions">
+        <button class="btn-admin" @click="$router.push('/admin')">管理</button>
+        <button class="btn-logout" @click="handleLogout">退出</button>
+      </div>
     </header>
 
     <!-- ========== 搜索栏 ========== -->
@@ -436,6 +438,12 @@ function formatDeadline(dateStr) {
   transition: all 0.15s;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .btn-admin {
   border: 1px solid #d9d9d9;
   background: #fff;
@@ -445,7 +453,6 @@ function formatDeadline(dateStr) {
   font-size: 13px;
   cursor: pointer;
   transition: all .15s;
-  margin-right: 8px;
 }
 .btn-admin:hover {
   border-color: #1890ff;
