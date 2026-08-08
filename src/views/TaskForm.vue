@@ -7,6 +7,7 @@ import {
   updateTodo,
 } from '../api/task.js'
 import { uploadFiles, uploadMarkdownImage } from '../api/file.js'
+import { fetchOptions } from '../api/option.js'
 import FileUpload from '../components/FileUpload.vue'
 
 const route = useRoute()
@@ -18,6 +19,10 @@ const pageTitle = computed(() => isEdit.value ? '编辑待办' : '新建待办')
 const saving = ref(false)
 const saved = ref(false)
 const loading = ref(false)
+
+// 下拉选项
+const projectOptions = ref([])
+const allModuleOptions = ref([])
 
 const form = ref({
   title: '',
@@ -42,7 +47,25 @@ const priorityOptions = [
   { value: 4, label: '低' },
 ]
 
+// 根据所选项目过滤模块列表
+const availableModules = computed(() => {
+  if (!form.value.project) return []
+  return allModuleOptions.value.filter(m => m.parentName === form.value.project)
+})
+
 onMounted(async () => {
+  // 加载下拉选项
+  try {
+    const [projects, modules] = await Promise.all([
+      fetchOptions('project'),
+      fetchOptions('module'),
+    ])
+    projectOptions.value = projects
+    allModuleOptions.value = modules
+  } catch (e) {
+    console.error('获取下拉选项失败:', e)
+  }
+
   if (isEdit.value) {
     loading.value = true
     try {
@@ -286,11 +309,17 @@ function goBack() {
           <div class="form-row">
             <div class="form-item">
               <label>所属项目</label>
-              <input v-model="form.project" type="text" class="form-input" placeholder="请输入项目名称" />
+              <select v-model="form.project" class="form-select">
+                <option value="">请选择项目</option>
+                <option v-for="p in projectOptions" :key="p.id" :value="p.name">{{ p.name }}</option>
+              </select>
             </div>
             <div class="form-item">
               <label>所属模块</label>
-              <input v-model="form.module" type="text" class="form-input" placeholder="请输入模块名称" />
+              <select v-model="form.module" class="form-select" :disabled="!form.project">
+                <option value="">{{ form.project ? '请选择模块' : '请先选择项目' }}</option>
+                <option v-for="m in availableModules" :key="m.id" :value="m.name">{{ m.name }}</option>
+              </select>
             </div>
           </div>
         </div>

@@ -20,11 +20,13 @@ export function getPriorityLabel(p) { return priorityMap[p] || p }
 
 // ======================== 分页列表 ========================
 
-export async function fetchTodos({ keyword = '', type = '', status = '', page = 1, pageSize = 10 } = {}) {
+export async function fetchTodos({ keyword = '', type = '', status = '', project = '', module = '', page = 1, pageSize = 10 } = {}) {
   const params = { page, pageSize }
   if (keyword) params.keyword = keyword
   if (type) params.type = type
   if (status) params.status = status
+  if (project) params.project = project
+  if (module) params.module = module
 
   const res = await request.get('/tasks', { params })
   return {

@@ -22,7 +22,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     private static final Logger log = LoggerFactory.getLogger(AuthInterceptor.class);
 
     /** 无需认证的路径前缀 */
-    private static final String[] SKIP_PREFIXES = {"/api/auth", "/api/share", "/api/markdown"};
+    private static final String[] SKIP_PREFIXES = {"/api/auth", "/api/share", "/api/markdown", "/api/auth/login"};
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
@@ -49,7 +49,9 @@ public class AuthInterceptor implements HandlerInterceptor {
             response.getWriter().write(JSONObject.toJSONString(body));
             return false;
         }
-        if (!JwtUtil.validateToken(auth)) {
+        //使用Bearer 开头
+        String token = auth.split(" ")[1];
+        if (!JwtUtil.validateToken(token)) {
             Map<String, Object> body = new HashMap<>();
             body.put("code", 401);
             body.put("message", "Token 已过期");
