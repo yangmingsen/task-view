@@ -263,6 +263,7 @@ function formatDeadline(dateStr) {
     <!-- ========== 顶部导航 ========== -->
     <header class="header">
       <h1 class="logo">📋 待办系统</h1>
+      <button class="btn-admin" @click="$router.push('/admin')">管理</button>
       <button class="btn-logout" @click="handleLogout">退出</button>
     </header>
 
@@ -433,6 +434,22 @@ function formatDeadline(dateStr) {
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s;
+}
+
+.btn-admin {
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  color: #666;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-right: 8px;
+}
+.btn-admin:hover {
+  border-color: #1890ff;
+  color: #1890ff;
 }
 
 .btn-logout:hover {
