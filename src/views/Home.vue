@@ -24,9 +24,11 @@ function onGlobalKeydown(e) {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('keydown', onGlobalKeydown)
-  loadOptions()
+  // 必须先加载下拉选项，再恢复筛选条件，否则 filterProject 的 watch
+  // 会因 allModuleOptions 暂为空而误将 filterModule 清空
+  await loadOptions()
   loadFilters()
   loadList()
 })
