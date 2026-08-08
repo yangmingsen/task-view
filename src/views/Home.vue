@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   fetchTodos,
@@ -8,6 +8,7 @@ import {
   getStatusLabel,
   getPriorityLabel,
 } from '../api/task.js'
+import { fetchOptions } from '../api/option.js'
 //} from '@/mock/data.js'
 import GlobalSearch from '../components/GlobalSearch.vue'
 
@@ -23,8 +24,11 @@ function onGlobalKeydown(e) {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('keydown', onGlobalKeydown)
+  // 必须先加载下拉选项，再恢复筛选条件，否则 filterProject 的 watch
+  // 会因 allModuleOptions 暂为空而误将 filterModule 清空
+  await loadOptions()
   loadFilters()
   loadList()
 })
@@ -39,10 +43,25 @@ function loadFilters() {
       keyword.value = saved.keyword || ''
       filterType.value = saved.filterType || ''
       filterStatus.value = saved.filterStatus || ''
+      filterProject.value = saved.filterProject || ''
+      filterModule.value = saved.filterModule || ''
       currentPage.value = saved.currentPage || 1
     }
   } catch { /* ignore */ }
   nextTick(() => { restoring = false })
+}
+
+async function loadOptions() {
+  try {
+    const [projects, modules] = await Promise.all([
+      fetchOptions('project'),
+      fetchOptions('module'),
+    ])
+    projectOptions.value = projects
+    allModuleOptions.value = modules
+  } catch (e) {
+    console.error('获取下拉选项失败:', e)
+  }
 }
 
 onUnmounted(() => {
@@ -57,6 +76,8 @@ function saveFilters() {
     keyword: keyword.value,
     filterType: filterType.value,
     filterStatus: filterStatus.value,
+    filterProject: filterProject.value,
+    filterModule: filterModule.value,
     currentPage: currentPage.value,
   }))
 }
@@ -64,6 +85,18 @@ function saveFilters() {
 const keyword = ref('')
 const filterType = ref('')
 const filterStatus = ref('')
+const filterProject = ref('')
+const filterModule = ref('')
+
+// 下拉选项
+const projectOptions = ref([])
+const allModuleOptions = ref([])
+
+// 根据所选项目过滤模块选项
+const filteredModuleOptions = computed(() => {
+  if (!filterProject.value) return allModuleOptions.value
+  return allModuleOptions.value.filter(m => m.parentName === filterProject.value)
+})
 
 const statusTabs = [
   { key: '', label: '全部' },
@@ -96,6 +129,8 @@ async function loadList() {
       keyword: keyword.value,
       type: filterType.value,
       status: filterStatus.value,
+      project: filterProject.value,
+      module: filterModule.value,
       page: currentPage.value,
       pageSize,
     })
@@ -114,13 +149,25 @@ function onSearch() {
   loadList()
 }
 
-watch([filterStatus, filterType, keyword, currentPage], () => {
+watch([filterStatus, filterType, keyword, currentPage, filterProject, filterModule], () => {
   saveFilters()
 })
 
-watch([filterStatus, filterType], () => {
+watch([filterStatus, filterType, filterProject, filterModule], () => {
   if (!restoring) currentPage.value = 1
   loadList()
+})
+
+// 切换项目时，如果当前模块不属于该项目则清空
+watch(filterProject, () => {
+  if (filterModule.value) {
+    const names = allModuleOptions.value
+      .filter(m => m.parentName === filterProject.value)
+      .map(m => m.name)
+    if (!names.includes(filterModule.value)) {
+      filterModule.value = ''
+    }
+  }
 })
 
 /* ========== 导航 ========== */
@@ -216,7 +263,10 @@ function formatDeadline(dateStr) {
     <!-- ========== 顶部导航 ========== -->
     <header class="header">
       <h1 class="logo">📋 待办系统</h1>
-      <button class="btn-logout" @click="handleLogout">退出</button>
+      <div class="header-actions">
+        <button class="btn-admin" @click="$router.push('/admin')">管理</button>
+        <button class="btn-logout" @click="handleLogout">退出</button>
+      </div>
     </header>
 
     <!-- ========== 搜索栏 ========== -->
@@ -234,6 +284,14 @@ function formatDeadline(dateStr) {
         </div>
         <select v-model="filterType" class="filter-select">
           <option v-for="t in typeTabs" :key="t.key" :value="t.key">{{ t.label }}</option>
+        </select>
+        <select v-model="filterProject" class="filter-select">
+          <option value="">全部项目</option>
+          <option v-for="p in projectOptions" :key="p.id" :value="p.name">{{ p.name }}</option>
+        </select>
+        <select v-model="filterModule" class="filter-select">
+          <option value="">全部模块</option>
+          <option v-for="m in filteredModuleOptions" :key="m.id" :value="m.name">{{ m.name }}</option>
         </select>
       </div>
       <button class="btn btn-primary" @click="goCreate">+ 新建待办</button>
@@ -262,8 +320,9 @@ function formatDeadline(dateStr) {
 <th style="width: 80px">类型</th>
 <th style="width: 80px">优先级</th>
 <th>标题</th>
+<th style="width: 80px">项目</th>
+<th style="width: 80px">模块</th>
 <th style="width: 90px">状态</th>
-                <th style="width: 80px">负责人</th>
                 <th style="width: 120px">截止日期</th>
                 <th style="width: 80px">进度</th>
                 <th style="width: 260px">操作</th>
@@ -288,12 +347,13 @@ function formatDeadline(dateStr) {
                   </span>
                 </td>
                 <td class="cell-title">{{ todo.title }}</td>
+                <td class="cell-project">{{ todo.project || '-' }}</td>
+                <td class="cell-project">{{ todo.module || '-' }}</td>
                 <td>
                   <span :class="['status-tag', getStatusClass(todo.status)]">
                     {{ getStatusLabel(todo.status) }}
                   </span>
                 </td>
-                <td>{{ todo.assignedTo }}</td>
                 <td class="cell-deadline" :class="{ overdue: formatDeadline(todo.deadline) < new Date().toISOString().substring(0, 10) && todo.status !== 'done' && todo.status !== 'closed' }">
                   {{ formatDeadline(todo.deadline) }}
                 </td>
@@ -374,6 +434,27 @@ function formatDeadline(dateStr) {
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-admin {
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  color: #666;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-admin:hover {
+  border-color: #1890ff;
+  color: #1890ff;
 }
 
 .btn-logout:hover {

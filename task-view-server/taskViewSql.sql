@@ -128,5 +128,40 @@ CREATE TABLE t_share (
   KEY idx_expire_time (expire_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='分享记录表';
 
+-- ============================================================
+-- 6. 下拉选项表（项目 / 模块）
+-- ============================================================
+DROP TABLE IF EXISTS t_option;
+CREATE TABLE t_option (
+  id            VARCHAR(32)  NOT NULL COMMENT '主键ID',
+  type          VARCHAR(32)  NOT NULL COMMENT '类型: project-项目, module-模块',
+  name          VARCHAR(128) NOT NULL COMMENT '选项名称',
+  parent_name   VARCHAR(128) DEFAULT NULL COMMENT '所属项目名（仅 module 类型使用）',
+  sort_order    INT          NOT NULL DEFAULT 0 COMMENT '排序',
+  create_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (id),
+  KEY idx_type (type),
+  KEY idx_parent_name (parent_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='下拉选项表';
+
+-- 初始数据：项目
+INSERT INTO t_option (id, type, name, parent_name, sort_order) VALUES
+('1', 'project', 'FPS',      NULL, 0),
+('2', 'project', 'Note',     NULL, 1),
+('3', 'project', 'TaskView', NULL, 2);
+
+-- 初始数据：各项目下的模块
+INSERT INTO t_option (id, type, name, parent_name, sort_order) VALUES
+('4',  'module', '中银',  'FPS',      0),
+('5',  'module', '国际',  'FPS',      1),
+('6',  'module', '大西洋', 'FPS',     2),
+('7',  'module', '发展',  'FPS',      3),
+('8',  'module', '大丰',  'FPS',      4),
+('9',  'module', '前端',  'Note',     0),
+('10', 'module', '后台',  'Note',     1),
+('11', 'module', '前端',  'TaskView', 0),
+('12', 'module', '后台',  'TaskView', 1);
+
 INSERT INTO t_user (id, username, password, real_name, email, status) VALUES
 ('1', 'admin', '202cb962ac59075b964b07152d234b70', '管理员', 'admin@taskview.com', 1);

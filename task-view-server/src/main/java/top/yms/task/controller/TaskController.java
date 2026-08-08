@@ -39,6 +39,8 @@ public class TaskController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String project,
+            @RequestParam(required = false) String module,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize) {
 
@@ -58,6 +60,14 @@ public class TaskController {
         // 状态筛选
         if (StringUtils.hasText(status)) {
             qw.eq(TaskEntity::getStatus, status);
+        }
+        // 所属项目筛选
+        if (StringUtils.hasText(project)) {
+            qw.eq(TaskEntity::getProject, project);
+        }
+        // 所属模块筛选
+        if (StringUtils.hasText(module)) {
+            qw.eq(TaskEntity::getModule, module);
         }
 
         qw.orderByDesc(TaskEntity::getCreateTime);

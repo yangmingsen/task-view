@@ -38,6 +38,19 @@ const routes = [
     meta: { requiresAuth: false },
   },
   {
+    path: '/admin',
+    component: () => import('@/views/Admin.vue'),
+    meta: { requiresAuth: true },
+    redirect: '/admin/options',
+    children: [
+      {
+        path: 'options',
+        name: 'AdminOptions',
+        component: () => import('@/views/AdminOption.vue'),
+      },
+    ],
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },
