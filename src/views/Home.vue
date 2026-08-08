@@ -323,7 +323,6 @@ function formatDeadline(dateStr) {
 <th style="width: 80px">项目</th>
 <th style="width: 80px">模块</th>
 <th style="width: 90px">状态</th>
-                <th style="width: 80px">负责人</th>
                 <th style="width: 120px">截止日期</th>
                 <th style="width: 80px">进度</th>
                 <th style="width: 260px">操作</th>
@@ -355,7 +354,6 @@ function formatDeadline(dateStr) {
                     {{ getStatusLabel(todo.status) }}
                   </span>
                 </td>
-                <td>{{ todo.assignedTo }}</td>
                 <td class="cell-deadline" :class="{ overdue: formatDeadline(todo.deadline) < new Date().toISOString().substring(0, 10) && todo.status !== 'done' && todo.status !== 'closed' }">
                   {{ formatDeadline(todo.deadline) }}
                 </td>
